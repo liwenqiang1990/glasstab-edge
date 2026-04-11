@@ -10,11 +10,11 @@ GlassTab 现在是一个面向 Edge 自用场景的 MV3 扩展，核心能力包
 
 ## 当前结构
 
-- `tab.html` + [`logic.js`](/mnt/d/Program Files/glasstab/logic.js): 新标签页主页
-- [`popup.html`](/mnt/d/Program Files/glasstab/popup.html) + [`popup.js`](/mnt/d/Program Files/glasstab/popup.js): 浏览页面时的快捷入口
-- [`options.html`](/mnt/d/Program Files/glasstab/options.html) + [`options.js`](/mnt/d/Program Files/glasstab/options.js): AI / WebDAV 设置页
-- [`background.js`](/mnt/d/Program Files/glasstab/background.js): 书签、摘要、自动备份等后台逻辑
-- [`shared`](/mnt/d/Program Files/glasstab/shared): 存储、资产、favicon、AI、WebDAV 共用模块
+- `tab.html` + [`logic.js`](glasstab/logic.js): 新标签页主页
+- [`popup.html`](glasstab/popup.html) + [`popup.js`](glasstab/popup.js): 浏览页面时的快捷入口
+- [`options.html`](/glasstab/options.html) + [`options.js`](glasstab/options.js): AI / WebDAV 设置页
+- [`background.js`](glasstab/background.js): 书签、摘要、自动备份等后台逻辑
+- [`shared`](glasstab/shared): 存储、资产、favicon、AI、WebDAV 共用模块
 
 ## 使用方式
 
@@ -74,14 +74,11 @@ GlassTab 现在是一个面向 Edge 自用场景的 MV3 扩展，核心能力包
 - 扩展不会在商店里被公开搜索和浏览
 - 但你可以通过直达链接安装，适合自用或小范围分发
 
-仓库里已经补了两份上架资料：
 
-- [docs/EDGE_STORE_SUBMISSION.md](/mnt/d/Program Files/glasstab/docs/EDGE_STORE_SUBMISSION.md)
-- [docs/EDGE_STORE_COPY.md](/mnt/d/Program Files/glasstab/docs/EDGE_STORE_COPY.md)
 
 并提供一键打包脚本：
 
-- [release/make-edge-package.sh](/mnt/d/Program Files/glasstab/release/make-edge-package.sh)
+- [release/make-edge-package.sh](glasstab/release/make-edge-package.sh)
 
 执行：
 

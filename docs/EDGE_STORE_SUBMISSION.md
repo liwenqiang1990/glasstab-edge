@@ -12,7 +12,7 @@
 
 提交前先确认：
 
-- [manifest.json](/mnt/d/Program Files/glasstab/manifest.json) 的 `version` 已递增
+- [manifest.json](glasstab/manifest.json) 的 `version` 已递增
 - 扩展在 `edge://extensions` 里重新加载后运行正常
 - AI 设置、WebDAV、书签、shortcut、书签页都至少走过一遍
 - 所有图标、截图、文案已经准备好
@@ -72,7 +72,7 @@
 
 仓库里已经提供打包脚本：
 
-- [release/make-edge-package.sh](/mnt/d/Program Files/glasstab/release/make-edge-package.sh)
+- [release/make-edge-package.sh](glasstab/release/make-edge-package.sh)
 
 在项目根目录执行：
 
