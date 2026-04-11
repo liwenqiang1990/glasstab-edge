@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlassTab 设置</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --panel: rgba(15, 23, 42, 0.92);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --danger: #f97316;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.2), transparent 32%),
+        var(--bg);
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.35);
+      backdrop-filter: blur(22px);
+    }
+
+    h1, h2 {
+      margin: 0 0 8px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 26px;
+    }
+
+    .inline input {
+      width: auto;
+      transform: translateY(1px);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      background: rgba(30, 41, 59, 0.92);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .primary { background: linear-gradient(135deg, var(--accent), #16a34a); color: #052e16; }
+    .danger { background: linear-gradient(135deg, var(--danger), #ef4444); color: white; }
+
+    .status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .inline { padding-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>GlassTab 设置</h1>
+      <p>这里配置 AI、WebDAV 与自动备份。插件数据默认保存在本地，只有你手动或自动触发时才会同步到 WebDAV。</p>
+    </section>
+
+    <section class="panel">
+      <h2>AI 摘要</h2>
+      <div class="grid">
+        <div class="field inline">
+          <input type="checkbox" id="ai-enabled">
+          <label for="ai-enabled">启用网页一句话摘要</label>
+        </div>
+        <div class="field">
+          <label for="ai-provider">Provider</label>
+          <select id="ai-provider"></select>
+        </div>
+        <div class="field">
+          <label for="ai-endpoint">Endpoint</label>
+          <input id="ai-endpoint" type="text" placeholder="https://.../chat/completions">
+        </div>
+        <div class="field">
+          <label for="ai-model">Model / Endpoint ID</label>
+          <input id="ai-model" type="text">
+        </div>
+        <div class="field full">
+          <label for="ai-key">API Key</label>
+          <input id="ai-key" type="password" placeholder="sk-...">
+        </div>
+        <div class="field">
+          <label for="ai-length">目标字数</label>
+          <input id="ai-length" type="number" min="12" max="120" step="1">
+        </div>
+        <div class="field">
+          <label for="ai-temperature">Temperature</label>
+          <input id="ai-temperature" type="number" min="0" max="2" step="0.1">
+        </div>
+        <div class="field full">
+          <label for="ai-prompt">System Prompt</label>
+          <textarea id="ai-prompt"></textarea>
+        </div>
+      </div>
+      <div class="meta" id="ai-hint"></div>
+    </section>
+
+    <section class="panel">
+      <h2>WebDAV 备份与恢复</h2>
+      <div class="grid">
+        <div class="field full">
+          <label for="dav-server">WebDAV 地址</label>
+          <input id="dav-server" type="text" placeholder="https://dav.example.com/remote.php/dav/files/username">
+        </div>
+        <div class="field">
+          <label for="dav-path">远端目录</label>
+          <input id="dav-path" type="text" placeholder="/glasstab">
+        </div>
+        <div class="field">
+          <label for="dav-file">备份文件名</label>
+          <input id="dav-file" type="text" placeholder="glasstab-backup.json">
+        </div>
+        <div class="field">
+          <label for="dav-user">用户名</label>
+          <input id="dav-user" type="text">
+        </div>
+        <div class="field">
+          <label for="dav-password">密码</label>
+          <input id="dav-password" type="password">
+        </div>
+        <div class="field inline">
+          <input type="checkbox" id="dav-auto">
+          <label for="dav-auto">数据变更后自动备份</label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="save-btn">保存设置</button>
+        <button id="backup-btn">立即备份到 WebDAV</button>
+        <button class="danger" id="restore-btn">从 WebDAV 恢复</button>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="meta" id="backup-meta"></div>
+    </section>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

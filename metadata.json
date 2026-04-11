@@ -1,0 +1,5 @@
+{
+  "name": "GlassTab",
+  "description": "A localized Edge start page extension with local shortcuts, bookmarks, AI page summary, and WebDAV backup.",
+  "requestFramePermissions": []
+}

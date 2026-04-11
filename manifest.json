@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "GlassTab",
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "version": "3.0.0",
+  "description": "A localized Edge new tab extension with shortcuts, bookmarks, AI summary, and WebDAV backup.",
+  "chrome_url_overrides": {
+    "newtab": "tab.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "GlassTab",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https: http: data: blob:; img-src 'self' https: http: data: blob:; style-src 'self' 'unsafe-inline';"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "activeTab",
+    "scripting",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ]
+}
