@@ -70,4 +70,4 @@ No remote code is loaded. The developer runs no servers and collects no data. Pr
 
 ## 5. 配套扩展「GlassTab 恢复」（可选，单独上架）
 
-`undo-tab/` 是一个独立的扩展，需要在 Partner Center 里**新建**一个条目提交，不能放进 GlassTab 的更新里。需要的话再单独准备素材。
+代码在仓库外的 `~/projects/glasstab-restore`。它是独立的扩展，需要在 Partner Center 里**新建**一个条目提交，不能放进 GlassTab 的更新里。需要的话再单独准备素材。
