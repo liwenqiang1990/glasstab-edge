@@ -8,7 +8,7 @@
 ## 1. 提交前
 
 - [ ] 在 Edge 里加载仓库目录自测：新标签页、弹窗收藏、书签页、设置、WebDAV 同步、AI 摘要各走一遍
-- [ ] 隐私政策已发布成公开网址（内容见 `docs/privacy-policy.html`）
+- [x] 隐私政策已发布：https://liwenqiang1990.github.io/glasstab-edge/privacy-policy.html（源文件 `docs/privacy-policy.html`，GitHub Pages 从 main 分支 /docs 发布）
 - [ ] 运行 `bash release/make-edge-package.sh`，得到 `release/dist/glasstab-edge-v4.0.0.zip`
 
 ## 2. Partner Center 操作步骤
@@ -19,9 +19,9 @@
 4. **Availability**：保持原来的可见性（Hidden / Public）和市场
 5. **Properties**：
    - Category：Productivity（不变）
-   - Privacy policy URL：填隐私政策网址（3.0.0 没填，这次必须补上，因为扩展会读取网页内容和可选的浏览历史）
+   - Privacy policy URL：https://liwenqiang1990.github.io/glasstab-edge/privacy-policy.html
    - Website / Support contact：可填 GitHub 地址或邮箱
-6. **Store listings**（中文、英文各一份，文案见 `docs/EDGE_STORE_COPY.md`）：
+6. **Store listings**（中文、英文各一份，文案见 `release/STORE_COPY.md`）：
    - Description：粘贴详细描述
    - Store logo：`release/assets/v4/store-logo-300.png`
    - Small promotional tile：`release/assets/v4/promo-small-440x280.png`
@@ -65,7 +65,7 @@ PERMISSIONS
 - history (new, optional): requested at runtime only when the user enables history search; used locally only.
 - Host access (http/https, unchanged): fetch website icons, reach the AI endpoint and WebDAV server configured by the user (arbitrary user-chosen domains), and load wallpapers from Bing/Unsplash.
 
-No remote code is loaded. The developer runs no servers and collects no data. Privacy policy: <隐私政策网址>
+No remote code is loaded. The developer runs no servers and collects no data. Privacy policy: https://liwenqiang1990.github.io/glasstab-edge/privacy-policy.html
 ```
 
 ## 5. 配套扩展「GlassTab 恢复」（可选，单独上架）
