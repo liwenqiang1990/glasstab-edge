@@ -3,292 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlassTab 书签</title>
+  <title>书签 · GlassTab</title>
+  <link rel="stylesheet" href="styles/ui.css">
   <style>
-    :root {
-      --text: #f8fafc;
-      --muted: rgba(226, 232, 240, 0.72);
-      --line: rgba(255, 255, 255, 0.12);
-      --line-strong: rgba(255, 255, 255, 0.24);
-      --glass: rgba(255, 255, 255, 0.1);
-      --shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
-      --shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.08);
+    .page { width: min(880px, 100%); margin: 0 auto; padding: 28px 20px 80px; }
+
+    .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+
+    .filters {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      gap: 10px;
+      margin: 0 -20px 6px;
+      padding: 10px 20px;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
     }
 
-    * { box-sizing: border-box; }
+    .count { font-size: 12px; color: var(--text-3); }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI Variable Display", "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 12% 12%, rgba(14, 165, 233, 0.24), transparent 28%),
-        radial-gradient(circle at 88% 18%, rgba(249, 115, 22, 0.18), transparent 24%),
-        radial-gradient(circle at 50% 100%, rgba(244, 114, 182, 0.12), transparent 30%),
-        #020617;
-    }
+    .list { border-radius: 10px; background: var(--surface); box-shadow: 0 0 0 0.5px var(--line), 0 1px 2px rgba(0, 0, 0, 0.04); overflow: hidden; }
 
-    .page {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 28px 24px 48px;
-    }
-
-    .toolbar {
-      display: flex;
+    .bm-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      gap: 12px;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
+      padding: 10px 12px;
+      color: inherit;
+      text-decoration: none;
     }
 
-    .title {
-      margin: 0;
-      font-size: 34px;
-      letter-spacing: -0.04em;
-      text-shadow: 0 8px 28px rgba(15, 23, 42, 0.16);
-    }
+    .bm-row:hover { background: var(--hover); }
+    .bm-row .app-icon { --tile: 36px; }
+    .bm-row + .bm-row::before { content: ""; position: absolute; top: 0; left: 60px; right: 0; border-top: 0.5px solid var(--line); }
 
-    .subtitle {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .bm-line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .bm-title { font-weight: 600; }
+    .bm-host { flex-shrink: 0; font-size: 12px; color: var(--text-3); }
+    .bm-summary { margin-top: 1px; color: var(--text-2); }
+    .bm-notes { margin-top: 1px; font-size: 12px; color: var(--text-3); }
+    .bm-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .bm-side { display: flex; align-items: center; gap: 2px; }
+    .bm-date { margin-right: 4px; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+    .bm-row .icon-button { opacity: 0; }
+    .bm-row:hover .icon-button, .bm-row .icon-button:focus-visible { opacity: 1; }
 
-    button, input {
-      font: inherit;
-    }
-
-    .ghost-btn {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 16px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
-      color: var(--text);
-      cursor: pointer;
-      backdrop-filter: blur(20px);
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .ghost-btn:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
-      border-color: var(--line-strong);
-    }
-
-    .toolbar-panel {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .search-input {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px 16px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
-      color: var(--text);
-      outline: none;
-      backdrop-filter: blur(20px);
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .search-input:focus,
-    .search-input:hover {
-      transform: translateY(-1px);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
-      border-color: var(--line-strong);
-    }
-
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--muted);
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-    }
-
-    .chip:hover {
-      transform: translateY(-1px);
-      border-color: var(--line-strong);
-      background: rgba(255, 255, 255, 0.14);
-    }
-
-    .chip.active {
-      background: rgba(14, 165, 233, 0.22);
-      color: #e0f2fe;
-      border-color: rgba(14, 165, 233, 0.38);
-    }
-
-    .meta {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 12px;
-    }
-
-    .list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .item {
-      display: grid;
-      grid-template-columns: 42px minmax(0, 1fr) auto;
-      gap: 14px;
-      align-items: start;
-      padding: 12px 14px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-      backdrop-filter: blur(22px);
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-    }
-
-    .item:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
-      border-color: var(--line-strong);
-      box-shadow: 0 24px 56px rgba(15, 23, 42, 0.16);
-    }
-
-    .icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .item-title {
-      font-size: 14px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      letter-spacing: -0.02em;
-    }
-
-    .item-site {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 2px;
-    }
-
-    .item-summary {
-      margin-top: 6px;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #e2e8f0;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .item-tags {
-      margin-top: 6px;
-      color: #fef3c7;
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .delete-btn {
-      border: 0;
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      background: rgba(239, 68, 68, 0.16);
-      color: #fecaca;
-      cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease;
-    }
-
-    .delete-btn:hover {
-      transform: translateY(-1px);
-      background: rgba(239, 68, 68, 0.28);
-    }
-
-    .empty {
-      color: var(--muted);
-      border: 1px dashed rgba(255, 255, 255, 0.18);
-      border-radius: 22px;
-      padding: 22px;
-      line-height: 1.7;
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(16px);
-    }
-
-    @media (max-width: 720px) {
-      .page {
-        padding: 18px 16px 40px;
-      }
-
-      .item {
-        grid-template-columns: 36px minmax(0, 1fr) auto;
-        gap: 12px;
-      }
-
-      .icon {
-        width: 36px;
-        height: 36px;
-      }
-    }
+    @media (max-width: 640px) { .bm-date, .bm-host { display: none; } }
   </style>
 </head>
 <body>
   <main class="page">
-    <div class="toolbar">
+    <header class="head">
       <div>
-        <h1 class="title">书签</h1>
-        <p class="subtitle">浏览、搜索、按标签过滤并管理所有书签。</p>
+        <a class="btn-text" href="tab.html" style="margin-left:-8px">← 返回新标签页</a>
+        <h1>书签</h1>
       </div>
-      <div class="actions">
-        <button class="ghost-btn" id="home-btn">主页</button>
-        <button class="ghost-btn" id="options-btn">设置</button>
+      <div class="head-actions">
+        <a class="btn-text" href="options.html?returnTo=tab" id="options-link"></a>
       </div>
-    </div>
+    </header>
 
-    <section class="toolbar-panel">
-      <input class="search-input" id="bookmark-search" type="text" placeholder="搜索标题、网址、摘要、标签">
-      <div class="chip-row" id="tag-filters"></div>
+    <section class="filters">
+      <div class="search-field" id="search-wrap"><input id="bookmark-search" type="text" placeholder="搜索标题、网址、摘要、标签" autofocus></div>
+      <div class="chips" id="tag-filters"></div>
+      <div class="count" id="bookmark-count"></div>
     </section>
 
-    <div class="meta" id="bookmark-count"></div>
     <section class="list" id="bookmark-list"></section>
   </main>
+
+  <div class="toast" id="toast" hidden></div>
 
   <script type="module" src="bookmarks.js"></script>
 </body>

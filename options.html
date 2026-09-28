@@ -4,234 +4,126 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GlassTab 设置</title>
+  <link rel="stylesheet" href="styles/ui.css">
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #020617;
-      --panel: rgba(15, 23, 42, 0.92);
-      --line: rgba(148, 163, 184, 0.18);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #22c55e;
-      --danger: #f97316;
-    }
+    .settings { width: min(640px, 100%); margin: 0 auto; padding: 28px 20px 80px; }
 
-    * { box-sizing: border-box; }
+    .settings-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 4px; }
+    .settings-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+    .saved-hint { font-size: 12px; color: var(--text-3); }
 
-    body {
-      margin: 0;
-      padding: 28px;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 32%),
-        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.2), transparent 32%),
-        var(--bg);
-    }
+    .group-title { display: flex; align-items: center; justify-content: space-between; }
+    .group-note { margin: 6px 12px 0; font-size: 11.5px; line-height: 1.5; color: var(--text-2); }
 
-    .wrap {
-      max-width: 1040px;
-      margin: 0 auto;
-      display: grid;
-      gap: 18px;
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.35);
-      backdrop-filter: blur(22px);
-    }
-
-    h1, h2 {
-      margin: 0 0 8px;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      font-size: 13px;
-      color: #cbd5e1;
-      font-weight: 600;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text);
-      font: inherit;
-      outline: none;
-    }
-
-    textarea {
-      min-height: 92px;
-      resize: vertical;
-    }
-
-    .inline {
-      display: flex;
+    .sync-state {
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding-top: 26px;
-    }
-
-    .inline input {
-      width: auto;
-      transform: translateY(1px);
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 18px;
-      background: rgba(30, 41, 59, 0.92);
-      color: var(--text);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .primary { background: linear-gradient(135deg, var(--accent), #16a34a); color: #052e16; }
-    .danger { background: linear-gradient(135deg, var(--danger), #ef4444); color: white; }
-
-    .status {
-      min-height: 20px;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 12px;
-    }
-
-    .meta {
+      gap: 6px;
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 8px;
+      font-weight: 400;
+      color: var(--text-2);
     }
 
-    @media (max-width: 760px) {
-      body { padding: 16px; }
-      .grid { grid-template-columns: 1fr; }
-      .inline { padding-top: 0; }
-    }
+    .sync-state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); }
+    .sync-state.ok::before { background: var(--ok); }
+    .sync-state.error { color: var(--danger); }
+    .sync-state.error::before { background: var(--danger); }
+    .sync-state.running::before { background: var(--accent); }
+
+    .sync-error { margin: 0; font-size: 12px; color: var(--danger); word-break: break-all; }
+
+    .status-line { min-height: 18px; margin: 14px 12px 0; font-size: 12px; color: var(--text-2); }
+    .status-line.error { color: var(--danger); }
+
+    select { appearance: auto; }
+    textarea { font: inherit; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="panel">
-      <h1>GlassTab 设置</h1>
-      <p>这里配置 AI、WebDAV 与自动备份。插件数据默认保存在本地，只有你手动或自动触发时才会同步到 WebDAV。</p>
-    </section>
+  <main class="settings">
+    <a class="btn-text" href="tab.html" id="back-link" style="margin-left:-8px">← 返回新标签页</a>
+    <header class="settings-head">
+      <h1>设置</h1>
+      <span class="saved-hint" id="saved-hint">修改后自动保存</span>
+    </header>
 
-    <section class="panel">
-      <h2>AI 摘要</h2>
-      <div class="grid">
-        <div class="field inline">
-          <input type="checkbox" id="ai-enabled">
-          <label for="ai-enabled">启用网页一句话摘要</label>
-        </div>
-        <div class="field">
-          <label for="ai-provider">Provider</label>
-          <select id="ai-provider"></select>
-        </div>
-        <div class="field">
-          <label for="ai-endpoint">Endpoint</label>
-          <input id="ai-endpoint" type="text" placeholder="https://.../chat/completions">
-        </div>
-        <div class="field">
-          <label for="ai-model">Model / Endpoint ID</label>
-          <input id="ai-model" type="text">
-        </div>
-        <div class="field full">
-          <label for="ai-key">API Key</label>
-          <input id="ai-key" type="password" placeholder="sk-...">
-        </div>
-        <div class="field">
-          <label for="ai-length">目标字数</label>
-          <input id="ai-length" type="number" min="12" max="120" step="1">
-        </div>
-        <div class="field">
-          <label for="ai-temperature">Temperature</label>
-          <input id="ai-temperature" type="number" min="0" max="2" step="0.1">
-        </div>
-        <div class="field full">
-          <label for="ai-prompt">System Prompt</label>
-          <textarea id="ai-prompt"></textarea>
-        </div>
+    <h2 class="group-title">WebDAV 同步<span class="sync-state" id="sync-state">未同步</span></h2>
+    <div class="group-box">
+      <label class="row field-row"><span class="row-label"><b>服务器地址</b></span><span class="row-control"><input id="dav-server" type="url" placeholder="https://dav.jianguoyun.com/dav/"></span></label>
+      <label class="row"><span class="row-label"><b>用户名</b></span><span class="row-control"><input id="dav-user" type="text" autocomplete="username"></span></label>
+      <label class="row"><span class="row-label"><b>密码</b><small>坚果云请用「第三方应用密码」</small></span><span class="row-control"><input id="dav-password" type="password" autocomplete="current-password"></span></label>
+      <label class="row"><span class="row-label"><b>远端目录</b></span><span class="row-control"><input id="dav-path" type="text" placeholder="/glasstab"></span></label>
+      <label class="row"><span class="row-label"><b>文件名</b></span><span class="row-control"><input id="dav-file" type="text" placeholder="glasstab-backup.json"></span></label>
+    </div>
+
+    <div class="group-box" style="margin-top:12px">
+      <div class="row">
+        <span class="row-label"><b>自动同步</b><small>数据变化后、打开新标签页或弹窗时、启动浏览器时同步</small></span>
+        <label class="switch"><input type="checkbox" id="dav-auto"><span></span></label>
       </div>
-      <div class="meta" id="ai-hint"></div>
-    </section>
-
-    <section class="panel">
-      <h2>WebDAV 备份与恢复</h2>
-      <div class="grid">
-        <div class="field full">
-          <label for="dav-server">WebDAV 地址</label>
-          <input id="dav-server" type="text" placeholder="https://dav.example.com/remote.php/dav/files/username">
-        </div>
-        <div class="field">
-          <label for="dav-path">远端目录</label>
-          <input id="dav-path" type="text" placeholder="/glasstab">
-        </div>
-        <div class="field">
-          <label for="dav-file">备份文件名</label>
-          <input id="dav-file" type="text" placeholder="glasstab-backup.json">
-        </div>
-        <div class="field">
-          <label for="dav-user">用户名</label>
-          <input id="dav-user" type="text">
-        </div>
-        <div class="field">
-          <label for="dav-password">密码</label>
-          <input id="dav-password" type="password">
-        </div>
-        <div class="field inline">
-          <input type="checkbox" id="dav-auto">
-          <label for="dav-auto">数据变更后自动备份</label>
-        </div>
+      <div class="row">
+        <span class="row-label"><b>立即同步</b><small id="sync-meta">拉取远端 → 合并 → 写回，不会用旧数据覆盖新数据</small></span>
+        <button class="btn" id="sync-btn" type="button">立即同步</button>
       </div>
+      <div class="row" id="sync-error-row" hidden><p class="sync-error" id="sync-error"></p></div>
+    </div>
 
-      <div class="actions">
-        <button class="primary" id="save-btn">保存设置</button>
-        <button id="backup-btn">立即备份到 WebDAV</button>
-        <button class="danger" id="restore-btn">从 WebDAV 恢复</button>
+    <h2 class="group-title">本机备份</h2>
+    <div class="group-box">
+      <div class="row">
+        <span class="row-label"><b>导出全部配置</b><small>快捷方式、分组、书签、图标以及 WebDAV / AI / Unsplash 设置；文件含密码和 Key，请妥善保存</small></span>
+        <button class="btn" id="export-btn" type="button">导出…</button>
       </div>
-      <div class="status" id="status"></div>
-      <div class="meta" id="backup-meta"></div>
-    </section>
-  </div>
+      <div class="row">
+        <span class="row-label"><b>从文件导入</b><small>用导出的文件完整替换本机数据</small></span>
+        <label class="btn">导入…<input id="import-file" type="file" accept="application/json,.json" hidden></label>
+      </div>
+    </div>
 
+    <h2 class="group-title">强制覆盖</h2>
+    <div class="group-box">
+      <div class="row">
+        <span class="row-label"><b>用远端覆盖本机</b><small>本机尚未同步的修改会丢失</small></span>
+        <button class="btn btn-danger" id="restore-btn" type="button">覆盖本机…</button>
+      </div>
+      <div class="row">
+        <span class="row-label"><b>用本机覆盖远端</b><small>其他设备尚未同步的修改会丢失</small></span>
+        <button class="btn btn-danger" id="overwrite-btn" type="button">覆盖远端…</button>
+      </div>
+    </div>
+
+    <h2 class="group-title" id="unsplash">Unsplash 壁纸</h2>
+    <div class="group-box">
+      <label class="row"><span class="row-label"><b>Access Key</b><small>在 unsplash.com/oauth/applications 的应用详情页复制</small></span><span class="row-control"><input id="unsplash-key" type="password" placeholder="粘贴 Access Key" autocomplete="off"></span></label>
+      <div class="row">
+        <span class="row-label"><b>测试连接</b><small id="unsplash-meta">只存在本机，不会同步或写入 WebDAV 备份</small></span>
+        <button class="btn" id="unsplash-test" type="button">测试</button>
+      </div>
+    </div>
+    <p class="group-note">填好后在新标签页右下角「外观」里切换到 Unsplash，可选主题或自定义关键词。</p>
+
+    <h2 class="group-title">AI 摘要</h2>
+    <div class="group-box">
+      <div class="row">
+        <span class="row-label"><b>启用 AI 摘要</b><small>收藏网页时用一句话概括内容</small></span>
+        <label class="switch"><input type="checkbox" id="ai-enabled"><span></span></label>
+      </div>
+      <div class="row">
+        <span class="row-label"><b>AI 搜索可读取历史记录</b><small>在新标签页用 AI 找网页时，把少量匹配的历史记录标题发给 AI 排序；关闭时只用书签</small></span>
+        <label class="switch"><input type="checkbox" id="ai-search-history"><span></span></label>
+      </div>
+      <label class="row"><span class="row-label"><b>服务商</b></span><span class="row-control"><select id="ai-provider" class="input"></select></span></label>
+      <label class="row"><span class="row-label"><b>Model / Endpoint ID</b></span><span class="row-control"><input id="ai-model" type="text"></span></label>
+      <label class="row"><span class="row-label"><b>API Key</b></span><span class="row-control"><input id="ai-key" type="password" placeholder="sk-..." autocomplete="off"></span></label>
+      <label class="row stack"><span class="row-label"><b>Endpoint</b><small id="ai-hint"></small></span><span class="row-control"><input id="ai-endpoint" type="text" placeholder="https://.../chat/completions"></span></label>
+      <label class="row"><span class="row-label"><b>目标字数</b></span><span class="row-control" style="flex-basis:90px"><input id="ai-length" type="number" min="12" max="120" step="1"></span></label>
+      <label class="row"><span class="row-label"><b>Temperature</b></span><span class="row-control" style="flex-basis:90px"><input id="ai-temperature" type="number" min="0" max="2" step="0.1"></span></label>
+      <label class="row stack"><span class="row-label"><b>System Prompt</b></span><span class="row-control"><textarea id="ai-prompt" class="input" rows="3" style="width:100%;resize:vertical"></textarea></span></label>
+    </div>
+    <p class="group-note">需要兼容 OpenAI Chat Completions 的接口，API Key 会随 WebDAV 同步到你的其他设备。</p>
+
+    <p class="status-line" id="status"></p>
+  </main>
   <script type="module" src="options.js"></script>
 </body>
 </html>

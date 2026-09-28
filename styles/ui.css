@@ -1,0 +1,359 @@
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --bg: #ececec;
+  --surface: #ffffff;
+  --surface-2: rgba(118, 118, 128, 0.12);
+  --hover: rgba(0, 0, 0, 0.045);
+  --line: rgba(0, 0, 0, 0.09);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --text: #1d1d1f;
+  --text-2: #6e6e73;
+  --text-3: #a1a1a6;
+  --accent: #007aff;
+  --accent-soft: rgba(0, 122, 255, 0.35);
+  --danger: #ff3b30;
+  --danger-soft: rgba(229, 72, 77, 0.1);
+  --ok: #34c759;
+  --icon-bg: #ffffff;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --surface: #2a2a2c;
+    --surface-2: rgba(118, 118, 128, 0.24);
+    --hover: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --text: #f5f5f7;
+    --text-2: #a1a1a6;
+    --text-3: #6e6e73;
+    --accent: #0a84ff;
+    --accent-soft: rgba(10, 132, 255, 0.45);
+    --danger: #ff453a;
+    --danger-soft: rgba(255, 99, 105, 0.12);
+    --ok: #30d158;
+    --icon-bg: #f5f5f7;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent); text-decoration: none; }
+[hidden] { display: none !important; }
+.icon { flex-shrink: 0; display: block; }
+
+.muted { color: var(--text-2); }
+.small { font-size: 12.5px; }
+
+/* 按钮（macOS push button） */
+
+.btn {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1.5px rgba(0, 0, 0, 0.1);
+  transition: filter 0.15s, opacity 0.15s;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn { background: rgba(255, 255, 255, 0.14); box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.1); }
+}
+
+.btn:hover { filter: brightness(0.97); }
+.btn:active { filter: brightness(0.9); }
+.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+
+.btn-primary {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 86%, #fff), var(--accent));
+  color: #fff;
+  box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--accent) 70%, #000), 0 1px 1.5px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover { filter: brightness(1.05); }
+
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { filter: brightness(0.97); }
+
+.btn-lg { height: 34px; font-size: 13.5px; border-radius: 8px; }
+.btn-block { width: 100%; }
+
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.btn-text:hover { background: var(--hover); color: var(--text); }
+
+.icon-button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-button:hover { background: var(--hover); color: var(--text); }
+.icon-button.danger:hover { background: var(--danger-soft); color: var(--danger); }
+
+/* 表单 */
+
+.field { display: grid; gap: 6px; align-content: start; }
+.field > span { font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+.field .hint { font-size: 12px; color: var(--text-3); }
+
+.input,
+.field input:not([type="checkbox"]),
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 0.5px solid var(--line-strong);
+  border-radius: 6px;
+  outline: none;
+  background: var(--surface);
+  box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s;
+}
+
+.field textarea { min-height: 80px; resize: vertical; }
+
+.input:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  box-shadow: 0 0 0 3.5px var(--accent-soft);
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-field .icon {
+  position: absolute;
+  left: 9px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.search-field input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px 0 30px;
+  border: 0;
+  border-radius: 8px;
+  outline: none;
+  background: var(--surface-2);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.search-field input:focus {
+  background: var(--surface);
+  box-shadow: 0 0 0 3.5px var(--accent-soft);
+}
+
+/* 开关 */
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 38px;
+  height: 22px;
+}
+
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+
+.switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--line-strong);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+
+.switch span::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s var(--ease);
+}
+
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(16px); }
+.switch span { border-radius: 11px; }
+.switch input:disabled + span { opacity: 0.5; }
+
+/* 标签 */
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.chip {
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12.5px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.chip:hover { color: var(--text); }
+.chip.active { border-color: transparent; background: var(--accent); color: #fff; }
+
+.tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 11.5px;
+}
+
+/* 列表条目 */
+
+/* 应用图标：满版图标直接铺满圆角方块；透明 logo 由 icon-style.js 配主色渐变底 */
+.app-icon {
+  position: relative;
+  width: var(--tile, 32px);
+  height: var(--tile, 32px);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 23%;
+  background: var(--icon-bg, transparent);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: opacity 0.2s;
+}
+
+.app-icon img { width: 100%; height: 100%; object-fit: cover; }
+.app-icon.is-glyph img { width: 60%; height: 60%; object-fit: contain; }
+.app-icon.is-pending { opacity: 0; }
+
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.empty {
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px 9px 16px;
+  border-radius: 12px;
+  background: rgba(40, 40, 44, 0.9);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+  color: #fff;
+  font-size: 13px;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
+  transform: translateX(-50%);
+}
+
+.toast.no-action { padding-right: 16px; }
+
+.toast button {
+  height: 26px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+
+/* macOS 系统设置式分组列表 */
+
+.group-title {
+  margin: 22px 0 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.group-box {
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px var(--line), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+.row + .row { border-top: 0.5px solid var(--line); }
+
+.row-label { min-width: 0; }
+.row-label b { display: block; font-weight: 400; }
+.row-label small { display: block; margin-top: 1px; font-size: 11.5px; color: var(--text-2); }
+
+.row-control { flex: 0 1 60%; display: flex; justify-content: flex-end; gap: 8px; min-width: 0; }
+.row-control input:not([type="checkbox"]),
+.row-control select { width: 100%; text-align: left; }
+.row.stack { flex-direction: column; align-items: stretch; gap: 6px; }
+.row.stack .row-control { flex-basis: auto; }

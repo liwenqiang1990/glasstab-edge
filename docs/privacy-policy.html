@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GlassTab 隐私政策 / Privacy Policy</title>
+  <style>
+    :root { color-scheme: light dark; --text: #1d1d1f; --muted: #6e6e73; --bg: #ffffff; --line: #e5e5ea; }
+    @media (prefers-color-scheme: dark) { :root { --text: #f5f5f7; --muted: #a1a1a6; --bg: #1c1c1e; --line: #38383a; } }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.7 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    h2 { font-size: 19px; margin: 32px 0 8px; }
+    .muted { color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 48px 0; }
+    code { font-size: 13px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>GlassTab 隐私政策</h1>
+  <p class="muted">生效日期：2026 年 9 月 28 日 · 适用版本：4.0 及以上</p>
+
+  <p>GlassTab 是一个浏览器新标签页扩展。<b>开发者不运营任何服务器，不收集、不存储、也不出售你的任何数据，扩展内没有统计或广告代码。</b>你的数据保存在你自己的浏览器里；只有在下表列出的情况下，扩展才会与第三方服务通信，而且大多需要你主动开启或操作。</p>
+
+  <h2>保存在本机的数据</h2>
+  <p>快捷方式与分组、书签（标题、网址、AI 摘要、标签、备注）、网站图标、壁纸，以及设置（包括你填写的 AI API Key、WebDAV 账号密码、Unsplash Access Key）保存在浏览器为本扩展提供的本地存储中（<code>chrome.storage</code> 与 IndexedDB）。卸载扩展即全部删除。</p>
+
+  <h2>会发送到第三方的数据</h2>
+  <table>
+    <tr><th>场景</th><th>发送给</th><th>发送的内容</th></tr>
+    <tr><td>生成 AI 摘要（你点击时）</td><td>你在设置中配置的 AI 服务（如阿里云百炼 DashScope、火山引擎方舟，或你填写的其他地址）</td><td>当前网页的标题、网址、描述、部分标题和最多约 4000 字的正文摘录</td></tr>
+    <tr><td>AI 找网页（你点击「用 AI 找」时）</td><td>同上</td><td>你输入的描述；本地筛选出的最多 30 条书签的标题、域名、摘要和标签。只有你在设置中开启「AI 搜索可读取历史记录」后，才会附带少量匹配的历史记录标题和域名</td></tr>
+    <tr><td>WebDAV 同步（你配置后）</td><td>你填写的 WebDAV 服务器</td><td>快捷方式、分组、书签、图标以及可同步的设置（含 AI 设置和 API Key）。WebDAV 账号密码、壁纸设置和 Unsplash Access Key 不会上传</td></tr>
+    <tr><td>获取网站图标</td><td>对应网站本身；Google 图标服务（t1.gstatic.com）；你打开「选择图标」时还有 icon.horse、DuckDuckGo</td><td>网站地址或域名</td></tr>
+    <tr><td>App Store 图标搜索（你搜索时）</td><td>Apple（itunes.apple.com）</td><td>你输入的搜索词</td></tr>
+    <tr><td>Bing 每日壁纸</td><td>Microsoft Bing（cn.bing.com / www.bing.com）</td><td>普通的图片请求，不含个人数据</td></tr>
+    <tr><td>Unsplash 壁纸（你填写 Key 后）</td><td>Unsplash</td><td>你的 Access Key、所选主题或关键词；按 Unsplash 要求，每张图片首次显示时会通知其下载统计接口</td></tr>
+  </table>
+
+  <h2>浏览器权限的用途</h2>
+  <ul>
+    <li><b>标签页 / 当前标签页 / 脚本注入</b>：你点击收藏或生成摘要时，读取当前网页的标题、网址和正文；在新标签页搜索时列出已打开的标签页。</li>
+    <li><b>历史记录（可选，首次使用时才请求授权）</b>：仅在本机用于新标签页的搜索建议。</li>
+    <li><b>右键菜单</b>：提供「保存到 GlassTab 书签」。</li>
+    <li><b>网站图标</b>：显示历史记录和标签页的网站小图标。</li>
+    <li><b>访问网站</b>：抓取网站图标，连接你配置的 AI 服务与 WebDAV 服务器，获取壁纸。</li>
+    <li><b>存储</b>：在本机保存上述数据。</li>
+  </ul>
+
+  <h2>你的控制权</h2>
+  <p>AI、WebDAV、Unsplash 都默认关闭，由你自行配置和开关。你可以随时在设置中导出或清除数据；卸载扩展会删除全部本地数据；WebDAV 上的备份文件由你自己管理。</p>
+
+  <h2>联系方式</h2>
+  <p>如有问题请联系：<a href="mailto:liwenqiang2016@hotmail.com">liwenqiang2016@hotmail.com</a></p>
+
+  <hr>
+
+  <h1>GlassTab Privacy Policy</h1>
+  <p class="muted">Effective: September 28, 2026 · Applies to version 4.0 and later</p>
+
+  <p>GlassTab is a browser new-tab extension. <b>The developer runs no servers and does not collect, store, or sell any of your data. The extension contains no analytics or advertising code.</b> Your data stays in your own browser. The extension only talks to third-party services in the cases listed below, most of which require you to turn them on or trigger them.</p>
+
+  <h2>Data stored locally</h2>
+  <p>Shortcuts and groups, bookmarks (title, URL, AI summary, tags, notes), site icons, wallpapers, and settings (including the AI API key, WebDAV credentials and Unsplash Access Key you enter) are kept in the extension's local browser storage (<code>chrome.storage</code> and IndexedDB). Uninstalling the extension removes them.</p>
+
+  <h2>Data sent to third parties</h2>
+  <table>
+    <tr><th>When</th><th>Sent to</th><th>What is sent</th></tr>
+    <tr><td>AI summary (when you click it)</td><td>The AI provider you configured (e.g. Alibaba DashScope, Volcengine ARK, or a custom endpoint)</td><td>The current page's title, URL, description, some headings and up to ~4,000 characters of text</td></tr>
+    <tr><td>AI page search (when you click "Find with AI")</td><td>Same as above</td><td>Your query, plus title, domain, summary and tags of up to 30 locally pre-selected bookmarks. A few matching history titles and domains are included only if you enable "Allow AI search to read history"</td></tr>
+    <tr><td>WebDAV sync (after you configure it)</td><td>Your own WebDAV server</td><td>Shortcuts, groups, bookmarks, icons and syncable settings (including AI settings and API key). WebDAV credentials, wallpaper settings and the Unsplash key are never uploaded</td></tr>
+    <tr><td>Fetching site icons</td><td>The website itself; Google favicon service (t1.gstatic.com); icon.horse and DuckDuckGo when you open "Choose icon"</td><td>The site URL or domain</td></tr>
+    <tr><td>App Store icon search (when you search)</td><td>Apple (itunes.apple.com)</td><td>Your search term</td></tr>
+    <tr><td>Bing daily wallpaper</td><td>Microsoft Bing</td><td>Plain image requests, no personal data</td></tr>
+    <tr><td>Unsplash wallpaper (after you add a key)</td><td>Unsplash</td><td>Your Access Key and chosen topic or keyword; per Unsplash guidelines, a download event is reported the first time each photo is shown</td></tr>
+  </table>
+
+  <h2>Why each permission is needed</h2>
+  <ul>
+    <li><b>tabs / activeTab / scripting</b>: read the current page's title, URL and text when you save it or ask for a summary; list open tabs in new-tab search.</li>
+    <li><b>history (optional, requested on first use)</b>: used only locally for new-tab search suggestions.</li>
+    <li><b>contextMenus</b>: the "Save to GlassTab bookmarks" menu item.</li>
+    <li><b>favicon</b>: show site icons for history and tab results.</li>
+    <li><b>Host access</b>: fetch site icons, reach your configured AI provider and WebDAV server, and load wallpapers.</li>
+    <li><b>storage / unlimitedStorage</b>: keep the data above on your device.</li>
+  </ul>
+
+  <h2>Your choices</h2>
+  <p>AI, WebDAV and Unsplash are all off by default and fully under your control. You can export or clear your data in Settings at any time; uninstalling removes all local data; any backup on your WebDAV server is managed by you.</p>
+
+  <h2>Contact</h2>
+  <p><a href="mailto:liwenqiang2016@hotmail.com">liwenqiang2016@hotmail.com</a></p>
+</main>
+</body>
+</html>

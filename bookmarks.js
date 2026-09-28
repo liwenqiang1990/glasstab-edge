@@ -1,148 +1,111 @@
 import { listAssetsMap } from './shared/assets.js';
-import { createFallbackIconDataUrl } from './shared/favicon.js';
-import { getState, removeBookmark } from './shared/storage.js';
-import { getHostname } from './shared/utils.js';
+import { collectTags, filterBookmarks, iconBox, renderTagChips } from './shared/bookmark-view.js';
+import { STORAGE_KEY } from './shared/constants.js';
+import { styleIcons } from './shared/icon-style.js';
+import { icon } from './shared/icons.js';
+import { getState, removeBookmark, upsertBookmark } from './shared/storage.js';
+import { escapeHtml, getHostname } from './shared/utils.js';
 
-const searchInput = document.getElementById('bookmark-search');
-const tagFilters = document.getElementById('tag-filters');
-const bookmarkCount = document.getElementById('bookmark-count');
-const bookmarkList = document.getElementById('bookmark-list');
-const homeButton = document.getElementById('home-btn');
-const optionsButton = document.getElementById('options-btn');
+const $ = (id) => document.getElementById(id);
+const searchInput = $('bookmark-search');
+const tagFilters = $('tag-filters');
+const bookmarkCount = $('bookmark-count');
+const bookmarkList = $('bookmark-list');
+const toast = $('toast');
 
 let state = null;
 let assetsMap = {};
 let selectedTag = '';
-let searchQuery = '';
+let toastTimer = null;
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+function formatDate(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+  return date.toLocaleDateString('zh-CN', sameYear ? { month: 'numeric', day: 'numeric' } : { year: 'numeric', month: 'numeric', day: 'numeric' });
 }
 
-function collectTags() {
-  const tags = new Set();
-  (state?.bookmarks || []).forEach((bookmark) => {
-    (bookmark.tags || []).forEach((tag) => tags.add(tag));
-  });
-  return Array.from(tags).sort((left, right) => left.localeCompare(right, 'zh-CN'));
+function showToast(message, action) {
+  clearTimeout(toastTimer);
+  toast.innerHTML = `<span>${escapeHtml(message)}</span>${action ? `<button type="button">${escapeHtml(action.label)}</button>` : ''}`;
+  toast.classList.toggle('no-action', !action);
+  toast.hidden = false;
+  if (action) {
+    toast.querySelector('button').onclick = () => {
+      toast.hidden = true;
+      action.run();
+    };
+  }
+  toastTimer = setTimeout(() => {
+    toast.hidden = true;
+  }, 4500);
 }
 
-function filteredBookmarks() {
-  const query = searchQuery.trim().toLowerCase();
-  return (state?.bookmarks || []).filter((bookmark) => {
-    if (selectedTag && !(bookmark.tags || []).includes(selectedTag)) {
-      return false;
-    }
+function render() {
+  const all = state?.bookmarks || [];
+  const tags = collectTags(all);
+  if (selectedTag && !tags.includes(selectedTag)) selectedTag = '';
+  const bookmarks = filterBookmarks(all, { query: searchInput.value, tag: selectedTag });
 
-    if (!query) {
-      return true;
-    }
-
-    const haystack = [
-      bookmark.title,
-      bookmark.url,
-      bookmark.summary,
-      bookmark.notes,
-      ...(bookmark.tags || []),
-    ].join(' ').toLowerCase();
-
-    return haystack.includes(query);
-  });
-}
-
-function renderTags() {
-  const tags = collectTags();
-  tagFilters.innerHTML = [
-    `<button class="chip ${selectedTag ? '' : 'active'}" type="button" data-tag="">全部</button>`,
-    ...tags.map((tag) => `<button class="chip ${selectedTag === tag ? 'active' : ''}" type="button" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`),
-  ].join('');
-}
-
-function renderBookmarks() {
-  const bookmarks = filteredBookmarks();
-  bookmarkCount.textContent = `共 ${state?.bookmarks?.length || 0} 条，当前显示 ${bookmarks.length} 条`;
+  tagFilters.innerHTML = renderTagChips(tags, selectedTag);
+  tagFilters.hidden = !tags.length;
+  bookmarkCount.textContent = bookmarks.length === all.length ? `共 ${all.length} 条` : `${bookmarks.length} / ${all.length} 条`;
 
   if (!bookmarks.length) {
-    bookmarkList.innerHTML = '<div class="empty">没有匹配的书签。</div>';
+    bookmarkList.innerHTML = `<div class="empty">${all.length ? '没有匹配的书签' : '还没有书签。浏览网页时点击工具栏里的 GlassTab 图标即可收藏。'}</div>`;
     return;
   }
 
-  bookmarkList.innerHTML = bookmarks.map((bookmark) => {
-    const icon = assetsMap[bookmark.iconAssetId] || createFallbackIconDataUrl(bookmark.title || 'B');
-    return `
-      <article class="item" data-url="${escapeHtml(bookmark.url)}">
-        <div class="icon"><img src="${icon}" alt=""></div>
-        <div>
-          <div class="item-title">${escapeHtml(bookmark.title)}</div>
-          <div class="item-site">${escapeHtml(getHostname(bookmark.url))}</div>
-          <div class="item-summary">${escapeHtml(bookmark.summary || bookmark.notes || '暂无摘要')}</div>
-          <div class="item-tags">${escapeHtml((bookmark.tags || []).join(' / ') || '无标签')}</div>
-        </div>
-        <button class="delete-btn" type="button" data-delete-id="${bookmark.id}" title="删除">删</button>
-      </article>
-    `;
-  }).join('');
+  bookmarkList.innerHTML = bookmarks.map((bookmark) => `
+    <a class="bm-row" href="${escapeHtml(bookmark.url)}">
+      ${iconBox(assetsMap, bookmark, bookmark.title)}
+      <div style="min-width:0">
+        <div class="bm-line"><span class="bm-title ellipsis">${escapeHtml(bookmark.title)}</span><span class="bm-host">${escapeHtml(getHostname(bookmark.url))}</span></div>
+        ${bookmark.summary ? `<div class="bm-summary">${escapeHtml(bookmark.summary)}</div>` : ''}
+        ${bookmark.notes ? `<div class="bm-notes">${escapeHtml(bookmark.notes)}</div>` : ''}
+        ${(bookmark.tags || []).length ? `<div class="bm-tags">${bookmark.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+      </div>
+      <div class="bm-side">
+        <span class="bm-date">${formatDate(bookmark.createdAt)}</span>
+        <button class="icon-button danger" type="button" data-delete-id="${escapeHtml(bookmark.id)}" title="删除">${icon('trash', 16)}</button>
+      </div>
+    </a>`).join('');
+  styleIcons(bookmarkList);
 }
 
 async function reload() {
   state = await getState();
   assetsMap = await listAssetsMap();
-  renderTags();
-  renderBookmarks();
+  render();
 }
 
-searchInput.addEventListener('input', () => {
-  searchQuery = searchInput.value;
-  renderBookmarks();
-});
+searchInput.addEventListener('input', render);
 
 tagFilters.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-tag]');
-  if (!button) {
-    return;
-  }
-  selectedTag = button.dataset.tag || '';
-  renderTags();
-  renderBookmarks();
+  const chip = event.target.closest('[data-tag]');
+  if (!chip) return;
+  selectedTag = chip.dataset.tag || '';
+  render();
 });
 
 bookmarkList.addEventListener('click', async (event) => {
   const deleteButton = event.target.closest('[data-delete-id]');
-  if (deleteButton) {
-    event.stopPropagation();
-    await removeBookmark(deleteButton.dataset.deleteId);
-    await reload();
-    chrome.runtime.sendMessage({ type: 'schedule-auto-backup' }).catch(() => {});
-    return;
-  }
-
-  const item = event.target.closest('[data-url]');
-  if (!item?.dataset.url) {
-    return;
-  }
-
-  window.location.href = item.dataset.url;
-});
-
-homeButton.addEventListener('click', () => {
-  window.location.href = chrome.runtime.getURL('tab.html');
-});
-
-optionsButton.addEventListener('click', () => {
-  window.location.href = chrome.runtime.getURL('options.html?returnTo=tab');
+  if (!deleteButton) return;
+  event.preventDefault();
+  const bookmark = state.bookmarks.find((item) => item.id === deleteButton.dataset.deleteId);
+  if (!bookmark) return;
+  await removeBookmark(bookmark.id);
+  showToast(`已删除「${bookmark.title}」`, { label: '撤销', run: () => upsertBookmark({ ...bookmark }) });
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== 'local') {
-    return;
+  if (areaName === 'local' && changes[STORAGE_KEY]) {
+    reload().catch((error) => console.error(error));
   }
-  reload().catch((error) => console.error(error));
 });
+
+$('search-wrap').insertAdjacentHTML('afterbegin', icon('search', 16));
+$('options-link').innerHTML = `${icon('settings', 15)}设置`;
 
 reload().catch((error) => {
   bookmarkList.innerHTML = `<div class="empty">${escapeHtml(error.message || String(error))}</div>`;

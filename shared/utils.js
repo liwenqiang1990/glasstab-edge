@@ -121,3 +121,8 @@ export function truncate(value = '', maxLength = 140) {
 export function ensureArray(value) {
   return Array.isArray(value) ? value : [];
 }
+
+export function toTime(value) {
+  const time = Date.parse(value || '');
+  return Number.isFinite(time) ? time : 0;
+}

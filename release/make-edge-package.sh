@@ -30,11 +30,12 @@ copy_path() {
 }
 
 copy_path "manifest.json"
-copy_path "metadata.json"
-copy_path "icon.png"
+copy_path "_locales"
+copy_path "icons"
 copy_path "background.js"
 copy_path "tab.html"
 copy_path "logic.js"
+copy_path "palette.js"
 copy_path "popup.html"
 copy_path "popup.js"
 copy_path "options.html"
@@ -42,7 +43,7 @@ copy_path "options.js"
 copy_path "bookmarks.html"
 copy_path "bookmarks.js"
 copy_path "shared"
-copy_path "libs"
+copy_path "styles"
 
 rm -f "$PACKAGE_PATH"
 

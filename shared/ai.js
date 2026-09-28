@@ -46,11 +46,17 @@ function extractTextContent(content) {
   return '';
 }
 
-export async function summarizePage(page, settings) {
+export function aiReady(settings = {}) {
+  const ai = normalizeAiSettings(settings);
+  return ai.enabled && Boolean(ai.apiKey) && Boolean(ai.model);
+}
+
+// 通用对话调用（OpenAI Chat Completions 兼容接口），返回纯文本。
+export async function chatCompletion(messages, settings, { maxTokens = 96, temperature } = {}) {
   const aiSettings = normalizeAiSettings(settings);
 
   if (!aiSettings.enabled) {
-    throw new Error('AI 摘要未启用，请先到设置页开启。');
+    throw new Error('AI 未启用，请先到设置页开启。');
   }
   if (!aiSettings.apiKey) {
     throw new Error('AI API Key 为空，请先到设置页填写。');
@@ -67,18 +73,9 @@ export async function summarizePage(page, settings) {
     },
     body: JSON.stringify({
       model: aiSettings.model,
-      temperature: aiSettings.temperature,
-      max_tokens: 96,
-      messages: [
-        {
-          role: 'system',
-          content: `${aiSettings.systemPrompt}输出要求：只返回一句中文，不要带序号、标题、引号，尽量控制在${aiSettings.summaryLength}字以内。`,
-        },
-        {
-          role: 'user',
-          content: buildPagePayload(page),
-        },
-      ],
+      temperature: temperature ?? aiSettings.temperature,
+      max_tokens: maxTokens,
+      messages,
     }),
   });
 
@@ -88,7 +85,22 @@ export async function summarizePage(page, settings) {
   }
 
   const data = await response.json();
-  const text = extractTextContent(data?.choices?.[0]?.message?.content).replace(/\s+/g, ' ').trim();
+  return extractTextContent(data?.choices?.[0]?.message?.content).trim();
+}
+
+export async function summarizePage(page, settings) {
+  const aiSettings = normalizeAiSettings(settings);
+  const raw = await chatCompletion([
+    {
+      role: 'system',
+      content: `${aiSettings.systemPrompt}输出要求：只返回一句中文，不要带序号、标题、引号，尽量控制在${aiSettings.summaryLength}字以内。`,
+    },
+    {
+      role: 'user',
+      content: buildPagePayload(page),
+    },
+  ], settings, { maxTokens: 96 });
+  const text = raw.replace(/\s+/g, ' ').trim();
 
   if (!text) {
     throw new Error('AI 未返回可用摘要。');

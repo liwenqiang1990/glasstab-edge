@@ -1,120 +1,73 @@
-# Edge 商店上架清单
+# Edge 商店：4.0.0 更新提交清单
 
-这个项目当前适合走 Microsoft Edge Add-ons 的 `Hidden` 可见性发布。
+- 商店地址：https://microsoftedge.microsoft.com/addons/detail/glasstab/niefnchmfpbhjfdngohlnkpihkdjgehd
+- 线上版本：3.0.0（Productivity 分类）
+- 本次版本：4.0.0
+- 提交方式：在 Partner Center 里**更新原有条目**，不要新建（扩展 ID 和安装链接保持不变，已安装用户会自动升级）
 
-`Hidden` 的含义：
+## 1. 提交前
 
-- 不会在商店公开搜索和浏览中出现
-- 但可以通过直达链接安装
-- 适合你现在这种“自用 / 小范围分发”场景
+- [ ] 在 Edge 里加载仓库目录自测：新标签页、弹窗收藏、书签页、设置、WebDAV 同步、AI 摘要各走一遍
+- [ ] 隐私政策已发布成公开网址（内容见 `docs/privacy-policy.html`）
+- [ ] 运行 `bash release/make-edge-package.sh`，得到 `release/dist/glasstab-edge-v4.0.0.zip`
 
-## 1. 提交前检查
+## 2. Partner Center 操作步骤
 
-提交前先确认：
+1. 登录 https://partner.microsoft.com/dashboard/microsoftedge/overview ，进入 GlassTab
+2. 点「Update」创建新提交
+3. **Packages**：上传 `glasstab-edge-v4.0.0.zip`
+4. **Availability**：保持原来的可见性（Hidden / Public）和市场
+5. **Properties**：
+   - Category：Productivity（不变）
+   - Privacy policy URL：填隐私政策网址（3.0.0 没填，这次必须补上，因为扩展会读取网页内容和可选的浏览历史）
+   - Website / Support contact：可填 GitHub 地址或邮箱
+6. **Store listings**（中文、英文各一份，文案见 `docs/EDGE_STORE_COPY.md`）：
+   - Description：粘贴详细描述
+   - Store logo：`release/assets/v4/store-logo-300.png`
+   - Small promotional tile：`release/assets/v4/promo-small-440x280.png`
+   - Large promotional tile（可选）：`release/assets/v4/promo-large-1400x560.png`
+   - Screenshots：`release/assets/v4/01~06`，共 6 张，1280×800
+   - Search terms：见文案文档
+7. **Notes for certification**：粘贴下方英文说明
+8. 提交，等审核（通常几个工作日）
 
-- [manifest.json](glasstab/manifest.json) 的 `version` 已递增
-- 扩展在 `edge://extensions` 里重新加载后运行正常
-- AI 设置、WebDAV、书签、shortcut、书签页都至少走过一遍
-- 所有图标、截图、文案已经准备好
+## 3. 与 3.0.0 相比的权限变化
 
-## 2. 建议准备的商店素材
+| 权限 | 变化 | 用途 |
+|---|---|---|
+| `favicon` | 新增 | 在搜索建议里显示历史记录和标签页的网站图标 |
+| `history` | 新增，**可选**（`optional_permissions`） | 新标签页搜索历史记录；用户首次点击「同时搜索浏览历史」时才请求 |
+| 其余（storage、unlimitedStorage、tabs、activeTab、scripting、contextMenus、全站点访问） | 不变 | 同 3.0.0 |
 
-至少准备：
+## 4. Notes for certification（粘贴到提交表单）
 
-- 扩展图标：`300x300`
-- 小图标：`44x44`
-- 宣传图：可选
-- 截图 3-5 张
+```
+GlassTab 4.0.0 is an update to the existing listing (3.0.0). It overrides the new tab page and adds a toolbar popup for saving bookmarks.
 
-建议截图内容：
+HOW TO TEST (no account or API key required)
+1. Open a new tab: wallpaper, clock, search box, shortcut grid (left dock = shortcut groups) and a bookmarks sidebar on the right.
+2. Type in the search box (or press Ctrl+K): suggestions come from shortcuts, bookmarks and open tabs. The last row "同时搜索浏览历史" requests the optional "history" permission; after granting, browsing history is also searched locally.
+3. Visit any website and click the GlassTab toolbar button, then "保存到书签" (Save to bookmarks). The page appears in the bookmarks sidebar on the new tab. Right-click on a page also offers "保存到 GlassTab 书签".
+4. Right-click a shortcut to edit it; "选择图标…" (Choose icon) shows icon candidates from several sources.
+5. Bottom-right image button: wallpaper settings (Bing / Unsplash / local image / built-in).
 
-1. 新标签页主页
-2. 浏览器弹窗页
-3. 独立书签页
-4. 设置页
-5. WebDAV / AI 配置页
+OPTIONAL FEATURES THAT NEED USER-SUPPLIED CREDENTIALS
+- AI summary and AI search: users enter their own OpenAI-compatible endpoint and API key in Settings (e.g. Alibaba DashScope). Page text is sent only to that endpoint and only when the user clicks.
+- WebDAV sync: users enter their own WebDAV server.
+- Unsplash wallpapers: users enter their own Unsplash Access Key.
+These are disabled by default; the rest of the extension works without them.
 
-## 3. 权限说明模板
+PERMISSIONS
+- tabs, activeTab, scripting: read the current page's title/URL/text when the user saves it or requests a summary; list open tabs in new-tab search.
+- contextMenus: "Save to GlassTab bookmarks" item.
+- storage, unlimitedStorage: all data is stored locally (bookmarks, icons, wallpapers).
+- favicon (new): show site icons in search suggestions.
+- history (new, optional): requested at runtime only when the user enables history search; used locally only.
+- Host access (http/https, unchanged): fetch website icons, reach the AI endpoint and WebDAV server configured by the user (arbitrary user-chosen domains), and load wallpapers from Bing/Unsplash.
 
-提交时建议主动写清楚这些权限用途：
-
-- `storage` / `unlimitedStorage`
-  用于本地保存 shortcuts、bookmarks、logo 资产、AI 设置与 WebDAV 设置。
-
-- `tabs` / `activeTab`
-  用于读取当前标签页标题和 URL，在用户主动操作时添加书签或生成网页摘要。
-
-- `scripting`
-  用于在用户当前页提取标题、描述和正文摘要，发送给 AI 做一句话总结。
-
-- `contextMenus`
-  用于在网页右键菜单中提供“保存到 GlassTab 书签”。
-
-- `host_permissions: http://*/*, https://*/*`
-  用于：
-  1. 自动抓取站点 favicon / logo
-  2. 调用用户配置的 AI 接口
-  3. 访问用户配置的 WebDAV 服务
-
-如果以后要公开发布，而不是 `Hidden`，建议再做一轮权限收敛。
-
-## 4. 提交步骤
-
-1. 注册 Edge 扩展开发者账号
-2. 进入 Partner Center
-3. 新建扩展提交
-4. 上传 zip 包
-5. 填写中英文描述、分类、截图、隐私信息
-6. `Availability` 里选择 `Hidden`
-7. 提交审核
-
-## 5. 打包方式
-
-仓库里已经提供打包脚本：
-
-- [release/make-edge-package.sh](glasstab/release/make-edge-package.sh)
-
-在项目根目录执行：
-
-```bash
-bash release/make-edge-package.sh
+No remote code is loaded. The developer runs no servers and collects no data. Privacy policy: <隐私政策网址>
 ```
 
-默认会在 `release/dist/` 下生成 zip。
+## 5. 配套扩展「GlassTab 恢复」（可选，单独上架）
 
-## 6. 当前建议上传内容
-
-打包脚本只会带这些运行时文件：
-
-- `manifest.json`
-- `metadata.json`
-- `icon.png`
-- `background.js`
-- `tab.html`
-- `logic.js`
-- `popup.html`
-- `popup.js`
-- `options.html`
-- `options.js`
-- `bookmarks.html`
-- `bookmarks.js`
-- `shared/`
-- `libs/`
-
-不会带这些开发残留：
-
-- `App.tsx`
-- `components/`
-- `constants.ts`
-- `main.js`
-- `start.html`
-- `types.ts`
-- `vite.config.ts`
-- `tsconfig.json`
-- `package.json`
-
-## 7. 提交后注意事项
-
-- 每次重新提交新版本都要先改 `manifest.json` 的 `version`
-- AI / WebDAV 属于用户自行配置的能力，商店文案里不要暗示默认就能用
-- 审核如果问到全站点权限，直接按本文件第 3 节解释
+`undo-tab/` 是一个独立的扩展，需要在 Partner Center 里**新建**一个条目提交，不能放进 GlassTab 的更新里。需要的话再单独准备素材。

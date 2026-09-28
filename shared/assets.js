@@ -1,4 +1,4 @@
-import { ASSET_DB_NAME, ASSET_STORE_NAME } from './constants.js';
+import { ASSET_DB_NAME, ASSET_STORE_NAME, WALLPAPER_STORE_NAME } from './constants.js';
 import { generateId, nowIso } from './utils.js';
 
 let databasePromise;
@@ -9,12 +9,15 @@ function openDatabase() {
   }
 
   databasePromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open(ASSET_DB_NAME, 1);
+    const request = indexedDB.open(ASSET_DB_NAME, 2);
 
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(ASSET_STORE_NAME)) {
         db.createObjectStore(ASSET_STORE_NAME, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(WALLPAPER_STORE_NAME)) {
+        db.createObjectStore(WALLPAPER_STORE_NAME, { keyPath: 'id' });
       }
     };
 
@@ -25,12 +28,12 @@ function openDatabase() {
   return databasePromise;
 }
 
-async function withStore(mode, runner) {
+async function withStore(storeName, mode, runner) {
   const db = await openDatabase();
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(ASSET_STORE_NAME, mode);
-    const store = transaction.objectStore(ASSET_STORE_NAME);
+    const transaction = db.transaction(storeName, mode);
+    const store = transaction.objectStore(storeName);
 
     runner(store, resolve, reject);
 
@@ -38,17 +41,22 @@ async function withStore(mode, runner) {
   });
 }
 
-export async function putAsset(record) {
-  const asset = {
+function normalizeAssetRecord(record) {
+  return {
     id: record.id || generateId('asset'),
     kind: record.kind || 'icon',
     mimeType: record.mimeType || 'image/png',
     dataUrl: record.dataUrl,
     sourceUrl: record.sourceUrl || '',
-    updatedAt: nowIso(),
+    rev: Number(record.rev) || 1,
+    updatedAt: record.updatedAt || nowIso(),
   };
+}
 
-  await withStore('readwrite', (store, resolve, reject) => {
+export async function putAsset(record) {
+  const asset = normalizeAssetRecord({ ...record, updatedAt: nowIso() });
+
+  await withStore(ASSET_STORE_NAME, 'readwrite', (store, resolve, reject) => {
     const request = store.put(asset);
     request.onsuccess = () => resolve(asset);
     request.onerror = () => reject(request.error || new Error('保存本地资产失败'));
@@ -57,24 +65,17 @@ export async function putAsset(record) {
   return asset;
 }
 
-export async function getAsset(assetId) {
-  if (!assetId) {
-    return null;
-  }
-
-  return withStore('readonly', (store, resolve, reject) => {
-    const request = store.get(assetId);
-    request.onsuccess = () => resolve(request.result || null);
-    request.onerror = () => reject(request.error || new Error('读取本地资产失败'));
-  });
-}
-
 export async function listAssets() {
-  return withStore('readonly', (store, resolve, reject) => {
+  return withStore(ASSET_STORE_NAME, 'readonly', (store, resolve, reject) => {
     const request = store.getAll();
     request.onsuccess = () => resolve(request.result || []);
     request.onerror = () => reject(request.error || new Error('读取资产列表失败'));
   });
+}
+
+export async function listAssetRecords() {
+  const records = await listAssets();
+  return Object.fromEntries(records.map((record) => [record.id, record]));
 }
 
 export async function listAssetsMap() {
@@ -85,20 +86,36 @@ export async function listAssetsMap() {
   }, {});
 }
 
-export async function deleteAsset(assetId) {
-  if (!assetId) {
+// 批量写入/删除，不清空已有资产。
+export async function applyAssetChanges({ put = [], remove = [] } = {}) {
+  if (!put.length && !remove.length) {
     return;
   }
 
-  await withStore('readwrite', (store, resolve, reject) => {
-    const request = store.delete(assetId);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error || new Error('删除本地资产失败'));
+  await withStore(ASSET_STORE_NAME, 'readwrite', (store, resolve, reject) => {
+    let pending = put.length + remove.length;
+    const done = () => {
+      pending -= 1;
+      if (pending === 0) {
+        resolve();
+      }
+    };
+
+    put.forEach((record) => {
+      const request = store.put(normalizeAssetRecord(record));
+      request.onsuccess = done;
+      request.onerror = () => reject(request.error || new Error('写入资产失败'));
+    });
+    remove.forEach((assetId) => {
+      const request = store.delete(assetId);
+      request.onsuccess = done;
+      request.onerror = () => reject(request.error || new Error('删除资产失败'));
+    });
   });
 }
 
 export async function replaceAllAssets(records = []) {
-  await withStore('readwrite', (store, resolve, reject) => {
+  await withStore(ASSET_STORE_NAME, 'readwrite', (store, resolve, reject) => {
     const clearRequest = store.clear();
     clearRequest.onerror = () => reject(clearRequest.error || new Error('清空本地资产失败'));
     clearRequest.onsuccess = () => {
@@ -109,15 +126,7 @@ export async function replaceAllAssets(records = []) {
 
       let pending = records.length;
       records.forEach((record) => {
-        const putRequest = store.put({
-          id: record.id || generateId('asset'),
-          kind: record.kind || 'icon',
-          mimeType: record.mimeType || 'image/png',
-          dataUrl: record.dataUrl,
-          sourceUrl: record.sourceUrl || '',
-          updatedAt: record.updatedAt || nowIso(),
-        });
-
+        const putRequest = store.put(normalizeAssetRecord(record));
         putRequest.onerror = () => reject(putRequest.error || new Error('恢复资产失败'));
         putRequest.onsuccess = () => {
           pending -= 1;
@@ -126,6 +135,35 @@ export async function replaceAllAssets(records = []) {
           }
         };
       });
+    };
+  });
+}
+
+// 壁纸图片单独存放（Blob），不参与 WebDAV 同步。
+export async function getWallpaperRecord(id) {
+  return withStore(WALLPAPER_STORE_NAME, 'readonly', (store, resolve, reject) => {
+    const request = store.get(id);
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error || new Error('读取壁纸失败'));
+  });
+}
+
+export async function putWallpaperRecord(record) {
+  await withStore(WALLPAPER_STORE_NAME, 'readwrite', (store, resolve, reject) => {
+    const request = store.put({ ...record, updatedAt: nowIso() });
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error || new Error('保存壁纸失败'));
+  });
+}
+
+export async function pruneWallpaperRecords(keepIds) {
+  const keep = new Set(keepIds);
+  await withStore(WALLPAPER_STORE_NAME, 'readwrite', (store, resolve, reject) => {
+    const request = store.getAllKeys();
+    request.onerror = () => reject(request.error || new Error('清理壁纸缓存失败'));
+    request.onsuccess = () => {
+      (request.result || []).filter((key) => !keep.has(key)).forEach((key) => store.delete(key));
+      resolve();
     };
   });
 }
